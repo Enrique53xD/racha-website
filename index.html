@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Racha — Tu tarjeta de lealtad digital</title>
+    <meta
+      name="description"
+      content="Racha es el programa de lealtad digital de tus negocios favoritos. Guarda tu tarjeta de sellos en Apple Wallet o Google Wallet y acumula progreso en cada visita."
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/">Racha</a>
+      <nav>
+        <a href="/soporte/">Soporte</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Tu tarjeta de lealtad, siempre en tu bolsillo.</h1>
+        <p class="lead">
+          Racha convierte la tarjeta de sellos de tu negocio favorito en un pase digital que vive
+          en tu Apple Wallet o Google Wallet — sin apps que instalar, sin tarjetas que perder.
+        </p>
+        <div class="badges">
+          <span class="badge">Apple Wallet</span>
+          <span class="badge">Google Wallet</span>
+        </div>
+      </section>
+
+      <section class="features">
+        <div class="feature">
+          <h2>Un sello por visita</h2>
+          <p>Cada vez que visitas el negocio, tu progreso se actualiza solo en tu tarjeta.</p>
+        </div>
+        <div class="feature">
+          <h2>Sin apps nuevas</h2>
+          <p>
+            Se guarda directo en la app de Wallet que ya tienes instalada en tu teléfono, sea
+            iPhone o Android.
+          </p>
+        </div>
+        <div class="feature">
+          <h2>Avisos automáticos</h2>
+          <p>
+            Cuando el negocio tiene una promoción o tu tarjeta cambia, te enteras directo en la
+            pantalla de bloqueo.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; <span id="year"></span> Racha. Todos los derechos reservados.</p>
+      <a href="/soporte/">Soporte</a>
+    </footer>
+
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
