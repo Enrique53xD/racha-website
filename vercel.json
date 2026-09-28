@@ -1,9 +1,11 @@
 {
-  "rewrites": [
+  "headers": [
     {
       "source": "/.well-known/apple-app-site-association",
-      "destination": "https://api.racha.com.gt/.well-known/apple-app-site-association"
-    },
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    }
+  ],
+  "rewrites": [
     {
       "source": "/.well-known/assetlinks.json",
       "destination": "https://api.racha.com.gt/.well-known/assetlinks.json"
