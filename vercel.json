@@ -9,8 +9,8 @@
       "destination": "https://api.racha.com.gt/.well-known/assetlinks.json"
     },
     {
-      "source": "/r/:code",
-      "destination": "https://api.racha.com.gt/r/:code"
+      "source": "/n/:code",
+      "destination": "/negocio/index.html"
     }
   ]
 }

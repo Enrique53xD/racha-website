@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Racha — Programa de lealtad</title>
+    <meta name="description" content="Únete al programa de lealtad de este negocio con Racha." />
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      .business-card {
+        max-width: 480px;
+        margin: 1rem auto 4rem;
+        background: var(--bg-elevated);
+        border-radius: 16px;
+        overflow: hidden;
+        text-align: center;
+      }
+      .business-banner {
+        height: 140px;
+        background: var(--brand, var(--accent));
+        background-size: cover;
+        background-position: center;
+      }
+      .business-body {
+        padding: 0 1.75rem 2rem;
+      }
+      .business-logo {
+        width: 96px;
+        height: 96px;
+        margin: -48px auto 1rem;
+        border-radius: 20px;
+        background: #fff;
+        object-fit: contain;
+        padding: 10px;
+        display: block;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      }
+      .business-body h1 {
+        margin: 0 0 0.5rem;
+        font-size: 1.75rem;
+        letter-spacing: -0.02em;
+      }
+      .business-body p {
+        margin: 0 0 1rem;
+        color: var(--fg-muted);
+      }
+      .business-meta {
+        font-size: 0.9rem;
+      }
+      .cta {
+        display: block;
+        margin: 1.5rem 0 0.75rem;
+        padding: 0.9rem 1.25rem;
+        border-radius: 999px;
+        background: var(--brand, var(--accent));
+        color: #fff;
+        font-weight: 700;
+      }
+      .cta:hover {
+        text-decoration: none;
+        opacity: 0.9;
+      }
+      .cta-note {
+        font-size: 0.85rem;
+        margin: 0;
+      }
+      .business-status {
+        padding: 3rem 1.75rem;
+        color: var(--fg-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/">Racha</a>
+      <nav>
+        <a href="/soporte/">Soporte</a>
+      </nav>
+    </header>
+
+    <main>
+      <article class="business-card" id="card">
+        <p class="business-status" id="status">Cargando…</p>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; <span id="year"></span> Racha. Todos los derechos reservados.</p>
+      <a href="/soporte/">Soporte</a>
+    </footer>
+
+    <script>
+      const API = "https://api.racha.com.gt";
+      const card = document.getElementById("card");
+      const status = document.getElementById("status");
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      // /n/<linkCode>: la ruta la reescribe Vercel a esta página.
+      const linkCode = decodeURIComponent(location.pathname.split("/").filter(Boolean)[1] ?? "");
+
+      function absoluteUrl(url) {
+        if (!url) return null;
+        return /^https?:\/\//.test(url) ? url : API + (url.startsWith("/") ? "" : "/") + url;
+      }
+
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text) node.textContent = text;
+        return node;
+      }
+
+      // Solo colores hex, por si el valor viniera con algo más.
+      function safeColor(value) {
+        return /^#[0-9a-f]{3,8}$/i.test(value ?? "") ? value : null;
+      }
+
+      function render(business, stores) {
+        const brand = safeColor(business.brandColor);
+        if (brand) card.style.setProperty("--brand", brand);
+        document.title = `${business.name} — Racha`;
+
+        card.replaceChildren();
+
+        const banner = el("div", "business-banner");
+        const bannerUrl = absoluteUrl(business.bannerUrl);
+        if (bannerUrl) banner.style.backgroundImage = `url("${bannerUrl}")`;
+        card.append(banner);
+
+        const body = el("div", "business-body");
+        const logoUrl = absoluteUrl(business.logoUrl);
+        if (logoUrl) {
+          const logo = el("img", "business-logo");
+          logo.src = logoUrl;
+          logo.alt = business.name;
+          body.append(logo);
+        } else {
+          const spacer = el("div");
+          spacer.style.height = "1.5rem";
+          body.append(spacer);
+        }
+
+        body.append(el("h1", null, business.name));
+        if (business.description) body.append(el("p", null, business.description));
+
+        const branch = business.branches?.[0];
+        const meta = [branch?.address, business.phone].filter(Boolean).join(" · ");
+        if (meta) body.append(el("p", "business-meta", meta));
+
+        const isAndroid = /android/i.test(navigator.userAgent);
+        const storeUrl = isAndroid ? stores?.playStoreUrl : stores?.appStoreUrl;
+        if (storeUrl) {
+          const cta = el("a", "cta", "Descarga Racha para unirte");
+          cta.href = storeUrl;
+          body.append(cta);
+          body.append(
+            el(
+              "p",
+              "cta-note",
+              "Si ya la tienes instalada, escanea de nuevo el código y se abrirá directo en la app."
+            )
+          );
+        }
+
+        card.append(body);
+      }
+
+      function showError(message) {
+        status.textContent = message;
+        card.replaceChildren(status);
+      }
+
+      async function load() {
+        if (!linkCode) return showError("Este link no corresponde a ningún negocio.");
+        try {
+          const [businessRes, storesRes] = await Promise.all([
+            fetch(`${API}/businesses/public/${encodeURIComponent(linkCode)}`),
+            fetch(`${API}/redirects/config`).catch(() => null),
+          ]);
+          if (businessRes.status === 404) {
+            return showError("No encontramos este negocio. Revisa que el link sea correcto.");
+          }
+          if (!businessRes.ok) throw new Error(businessRes.status);
+          const stores = storesRes?.ok ? await storesRes.json() : null;
+          render(await businessRes.json(), stores);
+        } catch {
+          showError("No pudimos cargar el negocio. Intenta de nuevo en un momento.");
+        }
+      }
+
+      load();
+    </script>
+  </body>
+</html>
